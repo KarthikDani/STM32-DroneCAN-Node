@@ -15,14 +15,14 @@ cmake_minimum_required(VERSION 3.20)
 ###################### CONSTANTS ######################################
 set (PROJECT_TYPE_EXECUTABLE          "exe")
 set (PROJECT_TYPE_STATIC_LIBRARY      "static-lib")
-set (MCPU_CORTEX_M0				      "-mcpu=cortex-m0")
-set (MCPU_CORTEX_M0PLUS				  "-mcpu=cortex-m0plus")
-set (MCPU_CORTEX_M3				      "-mcpu=cortex-m3")
-set (MCPU_CORTEX_M4				      "-mcpu=cortex-m4")
-set (MCPU_CORTEX_M7				      "-mcpu=cortex-m7")
-set (MCPU_CORTEX_M33				  "-mcpu=cortex-m33")
-set (MCPU_CORTEX_M55				  "-mcpu=cortex-m55")
-set (MCPU_CORTEX_M85				  "-mcpu=cortex-m85")
+set (MCPU_CORTEX_M0                   "-mcpu=cortex-m0")
+set (MCPU_CORTEX_M0PLUS               "-mcpu=cortex-m0plus")
+set (MCPU_CORTEX_M3                   "-mcpu=cortex-m3")
+set (MCPU_CORTEX_M4                   "-mcpu=cortex-m4")
+set (MCPU_CORTEX_M7                   "-mcpu=cortex-m7")
+set (MCPU_CORTEX_M33                  "-mcpu=cortex-m33")
+set (MCPU_CORTEX_M55                  "-mcpu=cortex-m55")
+set (MCPU_CORTEX_M85                  "-mcpu=cortex-m85")
 set (MFPU_FPV4_SP_D16                 "-mfpu=fpv4-sp-d16")
 set (MFPU_FPV5_D16                    "-mfpu=fpv5-d16")
 set (RUNTIME_LIBRARY_REDUCED_C        "--specs=nano.specs")
@@ -39,33 +39,29 @@ set (PROJECT_NAME             "STM32H753-DroneCAN-Node")
 set (PROJECT_TYPE             "exe")
 set (LINKER_SCRIPT            "../STM32H753IITX_FLASH.ld")
 set (MCPU                     "-mcpu=Cortex-M7")
-set (MFPU                 "-mfpu=fpv5-d16")
+set (MFPU                     "-mfpu=fpv5-d16")
 set (MFLOAT_ABI               "")
 set (RUNTIME_LIBRARY          "--specs=nano.specs")
 set (RUNTIME_LIBRARY_SYSCALLS "--specs=nosys.specs")
 
 
 set (PROJECT_SOURCES
-	# LIST SOURCE FILES HERE
-	Startup/startup_stm32h753iitx.s
-	Sources/main.c
-	Sources/syscalls.c
-	Sources/sysmem.c
-
-
-	)
+    # LIST SOURCE FILES HERE
+    Startup/startup_stm32h753iitx.s
+    Sources/main.c
+    Sources/syscalls.c
+    Sources/sysmem.c
+)
 
 set (PROJECT_DEFINES
-	# LIST COMPILER DEFINITIONS HERE
-
-    )
+    # LIST COMPILER DEFINITIONS HERE
+)
 
 set (PROJECT_INCLUDES
-	# LIST INCLUDE DIRECTORIES HERE
+    # LIST INCLUDE DIRECTORIES HERE
+)
 
-    )
-
-############ MODIFY ACCORDING TO REQUIREMENTS) ########################
+############ MODIFY ACCORDING TO REQUIREMENTS ########################
 
 #######################################################################
 
@@ -88,3 +84,32 @@ set (CMAKE_STATIC_LIBRARY_SUFFIX ".a")
 set (CMAKE_C_FLAGS "${MCPU} -std=gnu11 ${MFPU} ${MFLOAT_ABI} ${RUNTIME_LIBRARY} -mthumb -Wall -Werror")
 set (CMAKE_EXE_LINKER_FLAGS "-T${LINKER_SCRIPT} ${RUNTIME_LIBRARY_SYSCALLS} -Wl,-Map=test.map -Wl,--gc-sections -static -Wl,--start-group -lc -lm -Wl,--end-group")
 set (CMAKE_ASM_FLAGS "${CMAKE_C_FLAGS} -x assembler-with-cpp")
+
+################## NEWLY ADDED SECTIONS ###############################
+# project include files
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
+    Drivers/libcanard
+    Drivers/libcanard/drivers/stm32
+    Drivers/dsdl_generated/include
+)
+
+# all dsdl sources
+file(GLOB_RECURSE DSDL_SOURCES "Drivers/dsdl_generated/src/*.c")
+target_sources(${CMAKE_PROJECT_NAME} PRIVATE
+    ${DSDL_SOURCES}
+)
+
+# canard and driver
+add_library(libcanard STATIC
+    Drivers/libcanard/canard.c
+    Drivers/libcanard/drivers/stm32/canard_stm32.c
+)
+
+# canard include paths
+target_include_directories(libcanard PRIVATE
+    Drivers/libcanard
+)
+
+# Custom Written Codes
+add_library(dronecan_adapter Sources/dronecan_adapter.c)
+target_include_directories(dronecan_adapter PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

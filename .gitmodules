@@ -1,0 +1,3 @@
+[submodule "Drivers/libcanard"]
+	path = Drivers/libcanard
+	url = https://github.com/DroneCAN/libcanard

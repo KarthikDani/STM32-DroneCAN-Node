@@ -1,0 +1,2 @@
+arm-none-eabi-ar qc liblibcanard.a CMakeFiles/libcanard.dir/Drivers/libcanard/canard.c.obj CMakeFiles/libcanard.dir/Drivers/libcanard/drivers/stm32/canard_stm32.c.obj
+arm-none-eabi-ranlib liblibcanard.a

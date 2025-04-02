@@ -1,0 +1,2 @@
+arm-none-eabi-ar qc libdronecan_adapter.a CMakeFiles/dronecan_adapter.dir/Sources/dronecan_adapter.c.obj
+arm-none-eabi-ranlib libdronecan_adapter.a
